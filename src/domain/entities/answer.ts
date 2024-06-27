@@ -1,8 +1,9 @@
 import { Entity } from '../../core/entities/entity';
+import { UniqueEntityID } from '../../core/entities/unique-entity-is';
 
 export interface AnswerProps {
-    authorId: string;
-    questionId: string;
+    authorId: UniqueEntityID;
+    questionId: UniqueEntityID;
     content: string;
 }
 
