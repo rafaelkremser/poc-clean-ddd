@@ -4,7 +4,8 @@
   "description": "A project for studying clean code with DDD and SOLID",
   "main": "index.js",
   "scripts": {
-    "test": ""
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "author": "Rafael Kremser",
   "license": "ISC",
