@@ -1,4 +1,4 @@
-import { Answer } from '../entities/answer';
+import { Answer, AnswerProps } from '../entities/answer';
 
 interface AnswerQuestionUseCaseRequest {
     instructorId: string;
@@ -12,7 +12,11 @@ export class AnswerQuestionUseCase {
         questionId,
         content,
     }: AnswerQuestionUseCaseRequest) {
-        const answer = new Answer(instructorId, questionId, content);
+        const answer = new Answer({
+            authorId: instructorId,
+            questionId,
+            content,
+        });
 
         return answer;
     }
