@@ -20,7 +20,5 @@ export function makeQuestion(
         id
     );
 
-    console.log(question.content);
-
     return question;
 }
