@@ -19,6 +19,14 @@ export class InMemoryAnswerCommentsRepository
         return answerComment;
     }
 
+    async findManyByAnswerId(answerdId: string, params: PaginationParams) {
+        const answerComments = this.items
+            .filter((item) => item.answerId.toString() === answerdId)
+            .slice((params.page - 1) * 20, params.page * 20);
+
+        return answerComments;
+    }
+
     async create(answerComment: AnswerComment) {
         this.items.push(answerComment);
     }
