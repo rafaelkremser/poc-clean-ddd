@@ -23,13 +23,13 @@ describe('Comment Answer', () => {
 
         await inMemoryAnswersRepository.create(answer);
 
-        const { answerComment } = await sut.handle({
+        const result = await sut.handle({
             answerId: answer.id.toString(),
             authorId: 'author-01',
             content: 'An example for comment',
         });
 
-        expect(answerComment.id).toBeTruthy();
+        expect(result.isRight()).toBe(true);
         expect(inMemoryAnswerCommentsRepository.items[0].content).toEqual(
             'An example for comment'
         );
