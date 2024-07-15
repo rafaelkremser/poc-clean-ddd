@@ -1,48 +1,69 @@
-import { CreateQuestionUseCase } from './create-question';
+import { DeleteQuestionUseCase } from './delete-question';
 import { InMemoryQuestionsRepository } from 'test/repositories/in-memory-questions-repository';
 import { makeQuestion } from 'test/factories/make-question';
-import { DeleteQuestionUseCase } from './delete-question';
 import { UniqueEntityID } from '@/core/entities/unique-entity-id';
-import { NotAllowedError } from './errors/not-allowed-error';
+import { NotAllowedError } from '@/domain/forum/application/use-cases/errors/not-allowed-error';
+import { InMemoryQuestionAttachmentsRepository } from 'test/repositories/in-memory-question-attachments-repository';
+import { makeQuestionAttachment } from 'test/factories/make-question-attachment';
 
 let inMemoryQuestionsRepository: InMemoryQuestionsRepository;
-let createQuestionUseCase: CreateQuestionUseCase;
+let inMemoryQuestionAttachmentsRepository: InMemoryQuestionAttachmentsRepository;
 let sut: DeleteQuestionUseCase;
 
 describe('Delete Question', () => {
     beforeEach(() => {
-        inMemoryQuestionsRepository = new InMemoryQuestionsRepository();
-        createQuestionUseCase = new CreateQuestionUseCase(
-            inMemoryQuestionsRepository
+        inMemoryQuestionAttachmentsRepository =
+            new InMemoryQuestionAttachmentsRepository();
+        inMemoryQuestionsRepository = new InMemoryQuestionsRepository(
+            inMemoryQuestionAttachmentsRepository
         );
+
         sut = new DeleteQuestionUseCase(inMemoryQuestionsRepository);
     });
 
     it('should be able to delete a question', async () => {
         const createdQuestion = makeQuestion(
-            { authorId: new UniqueEntityID('author-01') },
-            new UniqueEntityID('question-01')
+            {
+                authorId: new UniqueEntityID('author-1'),
+            },
+            new UniqueEntityID('question-1')
         );
+
         await inMemoryQuestionsRepository.create(createdQuestion);
 
+        inMemoryQuestionAttachmentsRepository.items.push(
+            makeQuestionAttachment({
+                questionId: createdQuestion.id,
+                attachmentId: new UniqueEntityID('1'),
+            }),
+            makeQuestionAttachment({
+                questionId: createdQuestion.id,
+                attachmentId: new UniqueEntityID('2'),
+            })
+        );
+
         await sut.handle({
-            questionId: 'question-01',
-            authorId: 'author-01',
+            questionId: 'question-1',
+            authorId: 'author-1',
         });
 
-        expect(inMemoryQuestionsRepository.items[0]).toBeFalsy();
+        expect(inMemoryQuestionsRepository.items).toHaveLength(0);
+        expect(inMemoryQuestionAttachmentsRepository.items).toHaveLength(0);
     });
 
     it('should not be able to delete a question from another user', async () => {
         const createdQuestion = makeQuestion(
-            { authorId: new UniqueEntityID('author-01') },
-            new UniqueEntityID('question-01')
+            {
+                authorId: new UniqueEntityID('author-1'),
+            },
+            new UniqueEntityID('question-1')
         );
+
         await inMemoryQuestionsRepository.create(createdQuestion);
 
         const result = await sut.handle({
-            questionId: 'question-01',
-            authorId: 'author-02',
+            questionId: 'question-1',
+            authorId: 'author-2',
         });
 
         expect(result.isLeft()).toBe(true);
