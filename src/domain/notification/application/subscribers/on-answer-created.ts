@@ -23,6 +23,7 @@ export class OnAnswerCreated implements EventHandler {
         const question = await this.questionRepository.findById(
             answer.questionId.toString()
         );
+
         if (question) {
             await this.sendNotification.handle({
                 recipientId: question.authorId.toString(),
